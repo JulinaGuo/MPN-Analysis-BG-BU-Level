@@ -407,8 +407,8 @@ tmp1 = mpnBG.copy()
 tmp2 = s_mpnBG.copy()
 dsBG = pd.merge(tmp1,tmp2,how='inner',on=['MPN','BG'])
 dsBG.rename(columns={'DIF_x':'DEMAND_DIF','DIF_y':'SUPPLY_DIF'},inplace = True)
-dsBG['C_D&S_GAP'] = dsBG['C_SUPPLY'] - dsBG['C_DEMAND']
-dsBG['P_D&S_GAP'] = dsBG['P_SUPPLY'] - dsBG['P_DEMAND']
+dsBG['C_DS_GAP'] = dsBG['C_SUPPLY'] - dsBG['C_DEMAND']
+dsBG['P_DS_GAP'] = dsBG['P_SUPPLY'] - dsBG['P_DEMAND']
 dsBG.sort_values(by='C_DEMAND',inplace = True, ascending = False) # 依據本周 Customer Fcst 前 51 周總和
 
 # BU 供給需求差額分析
