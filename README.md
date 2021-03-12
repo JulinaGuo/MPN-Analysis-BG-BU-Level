@@ -1,18 +1,16 @@
 # MPN-Analysis-BG-BU-Level
 
-# MPN-Analysis-BG-BU-Level
-
 
 # 資料表代號
-g_cus_fcst = pd.read_excel(path + '\\G_FcstTmp_export.xlsx') # G 次 Customer Fcst
-f_cus_fcst = pd.read_excel(path + '\\F_FcstTmp_export.xlsx') # F 次 Customer Fcst
-g_p830 = pd.read_excel(path + '\\G_P830_CUS.xlsx') # 上周 G 次 Customer Fcst 
-f_p830 = pd.read_excel(path + '\\F_P830_CUS.xlsx') # 上周 F 次 Customer Fcst
-sloc = pd.read_excel(path + '\\SLOC.xlsx') # 本周 SLOC 對照表
-g_830r = pd.read_excel(path + '\\G_830R.xlsx') # 本周 G 次 830R
-f_830r = pd.read_excel(path + '\\F_830R.xlsx') # 本周 F 次 830R
-g_830r_p = pd.read_excel(path + '\\G_830R_P.xlsx') # 上周 G 次 830R
-f_830r_p = pd.read_excel(path + '\\F_830R_P.xlsx') # 上周 F 次 830R
+g_cus_fcst = pd.read_excel(path + '\\G_FcstTmp_export.xlsx') # G 次 Customer Fcst 
+f_cus_fcst = pd.read_excel(path + '\\F_FcstTmp_export.xlsx') # F 次 Customer Fcst 
+g_p830 = pd.read_excel(path + '\\G_P830_CUS.xlsx') # 上周 G 次 Customer Fcst  
+f_p830 = pd.read_excel(path + '\\F_P830_CUS.xlsx') # 上周 F 次 Customer Fcst 
+sloc = pd.read_excel(path + '\\SLOC.xlsx') # 本周 SLOC 對照表 
+g_830r = pd.read_excel(path + '\\G_830R.xlsx') # 本周 G 次 830R 
+f_830r = pd.read_excel(path + '\\F_830R.xlsx') # 本周 F 次 830R 
+g_830r_p = pd.read_excel(path + '\\G_830R_P.xlsx') # 上周 G 次 830R 
+f_830r_p = pd.read_excel(path + '\\F_830R_P.xlsx') # 上周 F 次 830R 
 
 # 日期欄位名稱調整
 c_new_indx = dict() 
