@@ -453,3 +453,20 @@ for bg in bg_list: # 排序順序:  BG → BU → MPN 依據本周 Customer Fcst
         summaryBU.drop(summaryBU[(summaryBU['BG'] == bg)&(summaryBU['BU'] == bu)].index, inplace = True)
         df.sort_values(by='C_DEMAND',inplace = True, ascending=False)
         summaryBU_af = pd.concat([summaryBU_af, df], ignore_index = True)
+
+        
+# 輸出
+new.to_excel(output_path+'\\new_mpnBG.xlsx',index = False)
+loss.to_excel(output_path+'\\loss_mpnBG.xlsx',index = False)
+
+new_bu.to_excel(output_path+'\\new_mpnBU.xlsx',index = False)
+loss_bu.to_excel(output_path+'\\loss_mpnBU.xlsx',index = False)
+
+amt.to_excel(output_path+'\\IS_mpnAMT.xlsx',index = False)
+isBase.to_excel(output_path+'\\isBase.xlsx',index = False)
+
+dsBG.to_excel(output_path+'\\Demand&Supply_BG.xlsx',index = False)
+dsBU_af.to_excel(output_path+'\\Demand&Supply_BU.xlsx',index = False)
+
+summaryBG.to_excel(output_path+'\\SummaryBG.xlsx',index = False)
+summaryBU_af.to_excel(output_path+'\\SummaryBU.xlsx', index = False)
