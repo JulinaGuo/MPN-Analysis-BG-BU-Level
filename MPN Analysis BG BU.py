@@ -461,8 +461,8 @@ writer = pd.ExcelWriter(output_path + '\\MPN_Analysis_BG_BU_Level.xlsx')
 summaryBG.to_excel(writer, sheet_name = 'SummaryBG',index = False)
 summaryBU_af.to_excel(writer, sheet_name = 'SummaryBU', index = False)
 
-summaryAMT.to_excel(writer, 'SummaryMPN_Count_BG.xlsx',index = False)
-summaryAMT_bu.to_excel(writer, 'SummaryMPN_Count_BU.xlsx',index = False)
+summaryAMT.to_excel(writer, sheet_name = 'SummaryMPN_Count_BG',index = False)
+summaryAMT_bu.to_excel(writer, sheet_name = 'SummaryMPN_Count_BU',index = False)
 
 dsBG.to_excel(writer, sheet_name = 'Demand&Supply_BG',index = False)
 dsBU_af.to_excel(writer, sheet_name = 'Demand&Supply_BU',index = False)
