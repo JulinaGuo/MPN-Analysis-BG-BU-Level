@@ -456,17 +456,21 @@ for bg in bg_list: # 排序順序:  BG → BU → MPN 依據本周 Customer Fcst
 
         
 # 輸出
-new.to_excel(output_path+'\\new_mpnBG.xlsx',index = False)
-loss.to_excel(output_path+'\\loss_mpnBG.xlsx',index = False)
+writer = pd.ExcelWriter(output_path + '\\MPN_Analysis_BG_BU_Level.xlsx')
 
-new_bu.to_excel(output_path+'\\new_mpnBU.xlsx',index = False)
-loss_bu.to_excel(output_path+'\\loss_mpnBU.xlsx',index = False)
+summaryBG.to_excel(writer, sheet_name = 'SummaryBG',index = False)
+summaryBU_af.to_excel(writer, sheet_name = 'SummaryBU', index = False)
 
-amt.to_excel(output_path+'\\IS_mpnAMT.xlsx',index = False)
-isBase.to_excel(output_path+'\\isBase.xlsx',index = False)
+summaryAMT.to_excel(writer, 'SummaryMPN_Count_BG.xlsx',index = False)
+summaryAMT_bu.to_excel(writer, 'SummaryMPN_Count_BU.xlsx',index = False)
 
-dsBG.to_excel(output_path+'\\Demand&Supply_BG.xlsx',index = False)
-dsBU_af.to_excel(output_path+'\\Demand&Supply_BU.xlsx',index = False)
+dsBG.to_excel(writer, sheet_name = 'Demand&Supply_BG',index = False)
+dsBU_af.to_excel(writer, sheet_name = 'Demand&Supply_BU',index = False)
 
-summaryBG.to_excel(output_path+'\\SummaryBG.xlsx',index = False)
-summaryBU_af.to_excel(output_path+'\\SummaryBU.xlsx', index = False)
+amt.to_excel(writer, sheet_name = 'IS_MPN_CPN_Count',index = False)
+isBase.to_excel(writer, sheet_name = 'IS_Demand', index = False)
+
+new.to_excel(writer, sheet_name = 'New_BG_MPN', index = False)
+loss.to_excel(writer, sheet_name = 'Loss_BG_MPN', index = False)
+
+writer.save()
