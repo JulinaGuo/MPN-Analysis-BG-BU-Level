@@ -287,6 +287,7 @@ del amt['index']
 amt['RANK'] = amt.index + 1
 q = 'select RANK, CSR, MPN_AMT, MPN_AMT_DIF, CPN_AMT, CPN_AMT_DIF from amt;'
 amt = sql(q)
+isAMT = amt
 
 ## 計算 CSR(IS) 業績差額
 for key in isBase.keys():
@@ -324,7 +325,9 @@ del isBase['index']
 isBase['DIF_RANK'] = isBase.index + 1
 q = 'select DIF_RANK, CSR, C_DEMAND, P_DEMAND, DIF from isBase;'
 isBase = sql(q)
-
+isBase['DIF_PCT'] = isBase['DIF']/isBase['P_DEMAND']
+isBase['DIF_PCT'] = isBase['DIF_PCT'].apply(lambda x: round(x,4))
+isBase['DIF_PCT'] = isBase['DIF_PCT'] * 100
 
 # BG supply analysis
 
@@ -398,7 +401,7 @@ for key in s_mpnBU_p.keys():
         del s_mpnBU_p[key]
         
 s_mpnBU = pd.merge(s_mpnBU,s_mpnBU_p,how='inner',on=['MPN','BG','BU'])
-s_mpnBU['DIF'] = s_mpnBU['C_SUPPLY']-s_mpnBU['P_SUPPLY']
+s_mpnBU['DIF'] = s_mpnBU['C_SUPPLY'] - s_mpnBU['P_SUPPLY']
 s_mpnBU.sort_values(by=['C_SUPPLY','BG','BU'], ascending = False, inplace = True)
 
 
@@ -432,41 +435,76 @@ for bg in bg_list:
         dsBU.drop(dsBU[(dsBU['BG'] == bg)&(dsBU['BU'] == bu)].index, inplace = True)
         df.sort_values(by='C_DEMAND', inplace = True, ascending = False)
         dsBU_af = pd.concat([dsBU_af, df], ignore_index = True)
-
+dsBU = dsBU_af[['BG','BU','MPN','C_DEMAND','P_DEMAND','DEMAND_DIF','C_SUPPLY','P_SUPPLY','SUPPLY_DIF','C_DS_GAP','P_DS_GAP']]
+        
 # BG summary 
 summaryBG = dsBG.copy()
 summaryBG = summaryBG.groupby('BG').sum().reset_index() # 依據 BG 加總
-summaryBG.sort_values(by='C_DEMAND',inplace = True, ascending = False) # 依據本周 Customer Fcst 前 51 周總和由大到小排序
-q = 'SELECT BG, C_DEMAND, C_SUPPLY, C_DS_GAP, C_DS_GAP/C_DEMAND AS C_GAP_PCT,   P_DEMAND, P_SUPPLY, P_DS_GAP, P_DS_GAP/P_DEMAND AS P_GAP_PCT FROM summaryBG GROUP BY BG;'
+summaryBG['C_GAP_PCT'] = summaryBG['C_DS_GAP']/summaryBG['C_DEMAND']
+summaryBG['P_GAP_PCT'] = summaryBG['P_DS_GAP']/summaryBG['P_DEMAND']
+q = 'SELECT BG, C_DEMAND, C_SUPPLY, C_DS_GAP, C_GAP_PCT,   P_DEMAND, P_SUPPLY, P_DS_GAP, P_GAP_PCT FROM summaryBG;'
 summaryBG = sql(q)
+summaryBG.sort_values(by='C_DEMAND',inplace = True, ascending = False) # 依據本周 Customer Fcst 前 51 周總和由大到小排序
+summaryBG['C_GAP_PCT'] = summaryBG['C_GAP_PCT'].apply(lambda x: round(x,4))
+summaryBG['P_GAP_PCT'] = summaryBG['P_GAP_PCT'].apply(lambda x: round(x,4))
+summaryBG['C_GAP_PCT'] = summaryBG['C_GAP_PCT'] * 100
+summaryBG['P_GAP_PCT'] = summaryBG['P_GAP_PCT'] * 100
+
 
 # BU SUMMARY
 summaryBU = dsBU_af.copy()
+del summaryBU['MPN']
 summaryBU = summaryBU.groupby(['BG','BU']).sum().reset_index()
 summaryBU.sort_values(by='BG',inplace = True)
+summaryBU['C_GAP_PCT'] = summaryBU['C_DS_GAP']/summaryBU['C_DEMAND']
+summaryBU['P_GAP_PCT'] = summaryBU['P_DS_GAP']/summaryBU['P_DEMAND']
+summaryBU = summaryBU[['BG', 'BU', 'C_DEMAND', 'C_SUPPLY', 'C_DS_GAP', 'C_GAP_PCT','P_DEMAND', 'P_SUPPLY', 'P_DS_GAP', 'P_GAP_PCT']]
 summaryBU_af = pd.DataFrame()
 bg_list = sorted(list(set(summaryBU['BG'])))
-for bg in bg_list: # 排序順序:  BG → BU → MPN 依據本周 Customer Fcst 前 51 周總和由大到小排序
-    bu_list = sorted(list(set(summaryBU[summaryBU['BG'] == bg]['BU'])))
-    for bu in bu_list:
-        df = summaryBU[(summaryBU['BG'] == bg)&(summaryBU['BU'] == bu)]
-        summaryBU.drop(summaryBU[(summaryBU['BG'] == bg)&(summaryBU['BU'] == bu)].index, inplace = True)
+for bg in bg_list: # 排序順序:  BG → C_DEMAND 依據本周 Customer Fcst 前 51 周總和由大到小排序
+        df = summaryBU[summaryBU['BG'] == bg]
+        summaryBU.drop(summaryBU[summaryBU['BG'] == bg].index, inplace = True)
         df.sort_values(by='C_DEMAND',inplace = True, ascending=False)
         summaryBU_af = pd.concat([summaryBU_af, df], ignore_index = True)
+summaryBU = summaryBU_af
+summaryBU['C_GAP_PCT'] = summaryBU['C_GAP_PCT'].apply(lambda x: round(x,4))
+summaryBU['P_GAP_PCT'] = summaryBU['P_GAP_PCT'].apply(lambda x: round(x,4))
+summaryBU['C_GAP_PCT'] = summaryBU['C_GAP_PCT'] * 100
+summaryBU['P_GAP_PCT'] = summaryBU['P_GAP_PCT'] * 100
 
-        
-# 輸出
-new.to_excel(output_path+'\\new_mpnBG.xlsx',index = False)
-loss.to_excel(output_path+'\\loss_mpnBG.xlsx',index = False)
+# 集團新增及流失 MPN 統計
+q = 'SELECT DISTINCT BG, COUNT(MPN) AS NEW_AMT FROM new GROUP BY BG;'
+summary_new = sql(q)
+q = 'SELECT DISTINCT BG, COUNT(MPN) AS LOSS_AMT FROM loss GROUP BY BG;'
+summary_loss = sql(q)
+summaryAMT_BG = pd.merge(summary_new,summary_loss,how='outer',on='BG')
+summaryAMT_BG.sort_values(by='LOSS_AMT',inplace = True, ascending = False)
+import numpy as np
+summaryAMT_BG['LOSS_AMT'] = summaryAMT_BG['LOSS_AMT'].astype(np.float).astype("Int32")
+summaryAMT_BG['NEW_AMT'] = summaryAMT_BG['NEW_AMT'].astype(np.float).astype("Int32")
 
-new_bu.to_excel(output_path+'\\new_mpnBU.xlsx',index = False)
-loss_bu.to_excel(output_path+'\\loss_mpnBU.xlsx',index = False)
 
-amt.to_excel(output_path+'\\IS_mpnAMT.xlsx',index = False)
-isBase.to_excel(output_path+'\\isBase.xlsx',index = False)
+q = 'SELECT DISTINCT BU, COUNT(MPN) AS NEW_AMT FROM new_bu GROUP BY BU;'
+summary_new_bu = sql(q)
+q = 'SELECT DISTINCT BU, COUNT(MPN) AS LOSS_AMT FROM loss_bu GROUP BY BU;'
+summary_loss_bu = sql(q)
 
-dsBG.to_excel(output_path+'\\Demand&Supply_BG.xlsx',index = False)
-dsBU_af.to_excel(output_path+'\\Demand&Supply_BU.xlsx',index = False)
+summaryAMT_BU = pd.merge(summary_new_bu,summary_loss_bu,how='outer',on='BU')
+summaryAMT_BU.sort_values(by='LOSS_AMT',inplace = True, ascending = False)
+summaryAMT_BU['LOSS_AMT'] = summaryAMT_BU['LOSS_AMT'].astype(np.float).astype("Int32")
+summaryAMT_BU['NEW_AMT'] = summaryAMT_BU['NEW_AMT'].astype(np.float).astype("Int32")
 
-summaryBG.to_excel(output_path+'\\SummaryBG.xlsx',index = False)
-summaryBU_af.to_excel(output_path+'\\SummaryBU.xlsx', index = False)
+
+# dataframe 輸出報表對應
+"""
+summaryBG: BG 整體供給需求變動
+summaryBU: BU 整體供給需求變動
+summaryAMT_BG: BG MPN數量變動
+summaryAMT_BU: BU MPN數量變動
+dsBG: Demand&Supply_BG
+dsBU: Demand&Supply_BU
+isAMT: IS_MPN_CPN_Counts
+isBase: IS_Demand
+new: New_BG_MPN
+loss: Loss_BG_MPN
+"""
