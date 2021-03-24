@@ -508,3 +508,23 @@ isBase: IS_Demand
 new: New_BG_MPN
 loss: Loss_BG_MPN
 """
+
+# 我這邊可以輸出的excel，但是後續需要由你們調整
+writer = pd.ExcelWriter(output_path + '\\MPN_Analysis_BG_BU_Level.xlsx')
+
+summaryBG.to_excel(writer, sheet_name = 'SummaryBG',index = False)
+summaryBU.to_excel(writer, sheet_name = 'SummaryBU', index = False)
+
+summaryAMT_BG.to_excel(writer, sheet_name = 'BG_MPN_Change',index = False)
+summaryAMT_BU.to_excel(writer, sheet_name = 'BU_MPN_Change', index = False)
+
+dsBG.to_excel(writer, sheet_name = 'Demand&Supply_BG',index = False)
+dsBU.to_excel(writer, sheet_name = 'Demand&Supply_BU',index = False)
+
+isAMT.to_excel(writer, sheet_name = 'IS_MPN_CPN_Count',index = False)
+isBase.to_excel(writer, sheet_name = 'IS_Demand', index = False)
+
+new.to_excel(writer, sheet_name = 'New_BG_MPN', index = False)
+loss.to_excel(writer, sheet_name = 'Loss_BG_MPN', index = False)
+
+writer.save()
